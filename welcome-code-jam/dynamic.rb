@@ -20,7 +20,7 @@ class Dynamic
             @result_table[x][y] = 1 + get_value(x - 1, 0)
           else
             @result_table[x][y] = get_value(x - 1, y - 1) + get_value(x - 1, y)
-				  end
+          end
         else
           @result_table[x][y] = get_value(x - 1, y)
         end
