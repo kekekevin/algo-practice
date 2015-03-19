@@ -6,7 +6,7 @@ class Dynamic
 
   def get_value(x, y)
     if x < 0 || y < 0
-		  0
+      0
     else
       @result_table[x][y]
     end
