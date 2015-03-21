@@ -34,6 +34,6 @@ class DiffScheduler
 
 end
 
-scheduler = DiffScheduler.new("large-schedule.in")
+scheduler = DiffScheduler.new("large_schedule.in")
 
 puts scheduler.completion_time

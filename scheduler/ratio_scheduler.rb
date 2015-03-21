@@ -28,6 +28,6 @@ class RatioScheduler
 
 end
 
-scheduler = RatioScheduler.new("large-schedule.in")
+scheduler = RatioScheduler.new("large_schedule.in")
 
 puts scheduler.completion_time
