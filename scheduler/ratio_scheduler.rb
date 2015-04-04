@@ -1,7 +1,7 @@
 class RatioScheduler
 
   def initialize(file)
-    file = File.open(file, "r") do |io|
+    File.open(file, "r") do |io|
       num_inputs = io.readline.to_i
       @jobs = (1..num_inputs).collect do
         input = io.readline.split

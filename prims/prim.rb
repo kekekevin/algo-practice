@@ -1,7 +1,7 @@
 class Prim
 
-  def initialize(file)
-    file = File.open(file, "r") do | io |
+  def initialize(file_name)
+    file = File.open(file_name, "r") do | io |
       header = io.readline.split
 
       @num_nodes = header[0].to_i

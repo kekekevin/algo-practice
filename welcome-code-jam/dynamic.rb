@@ -13,8 +13,8 @@ class Dynamic
   end
 
   def populate_result_table
-    @input_string.each_char.with_index do | input_char, x |
-      @search_string.each_char.with_index do | search_char, y |
+    @input_string.each_char.with_index do |input_char, x|
+      @search_string.each_char.with_index do |search_char, y|
         if input_char == search_char
           if y == 0
             @result_table[x][y] = 1 + get_value(x - 1, 0)
