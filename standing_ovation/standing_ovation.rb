@@ -1,5 +1,4 @@
 class StandingOvation
-
   def initialize(file_name)
     out_file = File.open("#{file_name}.out", "w")
 
@@ -26,8 +25,6 @@ class StandingOvation
   def required(shyness, audience)
     shyness - (0..shyness - 1).inject(0) { |mem, var| mem + audience[var] }
   end
-
-
 end
 
 StandingOvation.new("large.in")
