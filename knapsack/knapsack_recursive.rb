@@ -14,39 +14,31 @@ class KnapsackRecursive
       end
       items = items.sort_by { |e| e[:weight] }.reverse
 
-      puts solve(items, knapsack_size, 0)
-      puts @cache
-
-      File.open(file_name.sub(/in/, "out"), "w") do |io|
-        io.puts file_name
-
+      File.open(file_name.sub(/in/, "out"), "w") do |out_file|
+        out_file.puts file_name
+        out_file.puts solve(items, knapsack_size, 0)
       end
     end
   end
 
   def solve(items, weight, value)
-    puts "#{items} #{weight} #{value}"
-    if items.empty?
-      return value
-    end
-    if items[0][:weight] > weight
-      return value
-    end
-    return @cache[items.length - 1][weight] if @cache[items.length - 1].key? weight
+    return value if items.empty?
+    return @cache[items.length - 1][weight] + value if @cache[items.length - 1][weight]
 
-    max = [
-      solve(items[1..-1], weight, value),
-      solve(items[1..-1], weight - items[0][:weight], items[0][:value] + value)
-    ].max
-    @cache[items.length - 1][weight] = max
+    candidates = [solve(items[1..-1], weight, value)]
+    if items[0][:weight] <= weight
+      candidates << solve(items[1..-1], weight - items[0][:weight], items[0][:value] + value)
+    end
+    max = candidates.max
+
+    @cache[items.length - 1][weight] = max - value
 
     max
   end
 
 end
 
-KnapsackRecursive.new("example.in")
+# KnapsackRecursive.new("example.in")
 # KnapsackRecursive.new("example2.in")
-# KnapsackRecursive.new("small.in")
-
-
+KnapsackRecursive.new("small.in")
+KnapsackRecursive.new("large.in")
