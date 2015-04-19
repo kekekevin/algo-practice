@@ -41,7 +41,6 @@ class BellmanFord
         graph[to].in_edges << edge
       end
 
-      # puts graph
       result = graph.each_key.select { |key| graph[key].out_edges.any? { |e| e.weight < 0} }
         .collect { |key| solve(key, num_edges, num_vertices, graph) }.min
       if result
@@ -63,11 +62,6 @@ class BellmanFord
     1.upto(num_edges) do |i|
       num_vertices.times do |v|
         candidates = graph[v + 1].in_edges.collect do |e|
-          # puts "#{v} #{e.from - 1}"
-          # puts "#{table}"
-          # puts e.weight
-
-          # puts table[i - 1][e.from - 1] + e.weight
           table[(i - 1) % 2][e.from - 1] + e.weight
         end
         candidates << table[(i - 1) % 2][v]
@@ -84,7 +78,6 @@ class BellmanFord
         break
       end
     end
-    # puts "#{table}"
     return nil if table[0] != table[1]
     table[solution % 2].min
   end
@@ -94,6 +87,3 @@ BellmanFord.new("example.in")
 BellmanFord.new("example2.in")
 BellmanFord.new("example3.in")
 # BellmanFord.new("g1.in")
-
-# store in degree to each vertex
-#
