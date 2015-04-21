@@ -1,21 +1,5 @@
-class Edge
-  attr_accessor :from, :to, :weight
-
-  def initialize(from, to, weight)
-    @from = from
-    @to = to
-    @weight = weight
-  end
-end
-
-class Node
-  attr_accessor :in_edges, :out_edges
-
-  def initialize
-    @in_edges = []
-    @out_edges = []
-  end
-end
+require_relative "node"
+require_relative "edge"
 
 class BellmanFord
   def initialize(file_name)
