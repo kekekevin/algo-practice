@@ -9,20 +9,16 @@ class FloydWarshall
       num_vertices = graph_input[0].to_i
       num_edges = graph_input[1].to_i
 
-      graph = Hash.new
+      graph = Array.new(num_vertices + 1) { Array.new(num_vertices + 1) { Float::INFINITY } }
 
       num_edges.times do |e|
         edge_input = io.readline.split
 
-        from = edge_input[0].to_i - 1
-        to = edge_input[1].to_i - 1
+        from = edge_input[0].to_i
+        to = edge_input[1].to_i
         weight = edge_input[2].to_i
 
-        graph[from] = Node.new unless graph.key? from
-        graph[to] = Node.new unless graph.key? to
-        edge = Edge.new(from, to, weight)
-        graph[from].out_edges << edge
-        graph[to].in_edges << edge
+        graph[from][to] = weight
       end
 
       result = solve(num_vertices, graph)
@@ -36,23 +32,49 @@ class FloydWarshall
   end
 
   def solve(num_vertices, graph)
-    table = Array.new(num_vertices) { Array.new(num_vertices) { Array.new(num_vertices + 1) } }
+    table = Array.new(num_vertices + 1) { Array.new(num_vertices + 1) { Array.new(2) } }
+    # puts "num_vertices #{num_vertices}"
+    # puts "graph #{graph}"
 
-    num_vertices.times do |i|
-      num_vertices.times do |j|
-        edge = graph[i].out_edges.find { |e| e.to == j + 1 }
+    1.upto num_vertices do |i|
+      1.upto num_vertices do |j|
+        # puts "#{i} #{j}"
+        weight = graph[i][j]
         if i == j
           table[i][j][0] = 0
-        elsif edge
-          table[i][j][0] = edge.weight
         else
-          table[i][j][0] = Float::INFINITY
+          table[i][j][0] = weight
         end
       end
     end
-    num_vertices.times do |i|
+
+    1.upto num_vertices do |k|
+      1.upto num_vertices do |i|
+        1.upto num_vertices do |j|
+          table[i][j][k % 2] = [table[i][j][(k - 1) % 2], table[i][k][(k - 1) % 2] + table[k][j][(k - 1) % 2]].min
+        end
+        return nil if table[i][i][k % 2] < 0
+      end
     end
-    puts "#{table}"
+
+    answers = []
+    1.upto num_vertices do |i|
+      1.upto num_vertices do |j|
+        answers << table[i][j][num_vertices % 2]
+      end
+    end
+    answers.min
   end
 end
-FloydWarshall.new("example.in")
+
+# FloydWarshall.new("example.in")
+# FloydWarshall.new("example2.in")
+# FloydWarshall.new("example3.in")
+puts Time.now
+FloydWarshall.new("g1.in")
+puts Time.now
+FloydWarshall.new("g2.in")
+puts Time.now
+FloydWarshall.new("g3.in")
+puts Time.now
+
