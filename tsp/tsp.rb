@@ -23,44 +23,58 @@ class Tsp
     num_points = points.length
     table = Array.new(2 ** (num_points - 1)) { Array.new(num_points) { Float::INFINITY } }
 
-    table.length.times do |i|
-      if i == 0
-        table[i][0] = 0
-      else
-        table[i][0] = Float::INFINITY
-      end
-    end
+    table[0][0] = 0
 
-    1.upto(num_points) do |m|
-      1.upto(2 ** (num_points - 1) - 1) do |s|
+    1.upto(num_points - 1) do |m|
+      puts "m #{m} #{Time.now}"
+      s = ("1" * m).to_i(2)
+      loop do
+
         subset = "%#{2 ** (num_points - 1)}b" % s
-        if subset.count("1") == m
-          0.upto(num_points - 1) do |j|
-            if subset[-j - 1] == "1"
-              if m == 1
-                table[s][j + 1] = distances[0][j + 1]
-              else
-                x = String.new(subset)
-                x[-j - 1] = "0"
-                # puts "subset #{subset}"
-                # puts "#{x}"
-                table[s][j + 1] = table[x.to_i(2)].each_with_index.collect do |e, k|
-                  e + distances[k][j + 1]
-                end.min
-              end
+
+        0.upto(num_points - 1) do |j|
+          if subset[-j - 1] == "1"
+            if m == 1
+              table[s][j + 1] = distances[0][j + 1]
+            else
+              x = String.new(subset)
+              x[-j - 1] = "0"
+              # puts "subset #{subset}"
+              # puts "#{x}"
+              table[s][j + 1] = table[x.to_i(2)].each_with_index.collect do |e, k|
+                e + distances[k][j + 1]
+              end.min
             end
           end
         end
+        s = next_subset(s, 2 ** (num_points - 1) - 1)
+        break if !s
       end
     end
     # table.each_with_index do |t, i|
       # puts "#{i} #{t}"
     # end
-    table[-1].each_with_index.collect do |cost, j|
+    final_candidates = table[-1].each_with_index.collect do |cost, j|
       cost + distances[j][0]
-    end.min
+    end
+
+    final_candidates.min
+  end
+
+  # Gosper Hack for finding next subset
+  def next_subset(x, max)
+    y = x & -x
+    c = x + y
+    x = (((x ^ c) >> 2) / y) | c
+    if x >= max
+      return nil
+    else
+      x
+    end
   end
 end
 
-Tsp.new("example.in")
-Tsp.new("example2.in")
+x = Tsp.new("example.in")
+x = Tsp.new("example2.in")
+# x = Tsp.new("example3.in")
+x = Tsp.new("input.in")
