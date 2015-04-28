@@ -27,33 +27,27 @@ class Tsp
 
     1.upto(num_points - 1) do |m|
       puts "m #{m} #{Time.now}"
-      s = ("1" * m).to_i(2)
+      s = (1 << m) -1
       loop do
-
-        subset = "%#{2 ** (num_points - 1)}b" % s
-
         0.upto(num_points - 1) do |j|
-          if subset[-j - 1] == "1"
+          if ((s >> j) & 1) == 1
             if m == 1
               table[s][j + 1] = distances[0][j + 1]
             else
-              x = String.new(subset)
-              x[-j - 1] = "0"
-              # puts "subset #{subset}"
-              # puts "#{x}"
-              table[s][j + 1] = table[x.to_i(2)].each_with_index.collect do |e, k|
-                e + distances[k][j + 1]
-              end.min
+              min = table[s - (1 << j)][0] + distances[0][j + 1]
+              1.upto (num_points - 1) do |k|
+                if min > table[s - (1 << j)][k] + distances[k][j + 1]
+                  min = table[s - (1 << j)][k] + distances[k][j + 1]
+                end
+              end
+              table[s][j + 1] = min
             end
           end
         end
-        s = next_subset(s, 2 ** (num_points - 1) - 1)
+        s = next_subset(s, (1 << num_points - 1) - 1)
         break if !s
       end
     end
-    # table.each_with_index do |t, i|
-      # puts "#{i} #{t}"
-    # end
     final_candidates = table[-1].each_with_index.collect do |cost, j|
       cost + distances[j][0]
     end
@@ -67,7 +61,7 @@ class Tsp
     c = x + y
     x = (((x ^ c) >> 2) / y) | c
     if x >= max
-      return nil
+      nil
     else
       x
     end
