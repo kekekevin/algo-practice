@@ -2,7 +2,7 @@ class Randomized
   def initialize(filename)
     File.open(filename, "r") do |file|
       num_clauses = file.readline.to_i
-      variables = Array.new(num_clauses)
+      @variables = Array.new(num_clauses)
       clauses = Array.new(num_clauses) { Array.new(2) }
 
       num_clauses.times.collect do |i|
@@ -11,7 +11,7 @@ class Randomized
         clauses[i][1] = clause_input[1].to_i
       end
       puts filename
-      if solve(variables, clauses)
+      if solve(@variables, clauses)
         puts "SAT"
       else
         puts "UNSAT"
@@ -20,11 +20,11 @@ class Randomized
   end
 
   def solve(variables, clauses)
-    Math.log2(variables.length).to_i.times do
-      variables.collect! { [true, false].sample }
+    Math.log2(@variables.length).to_i.times do
+      @variables.collect! { [true, false].sample }
       puts "variables #{variables}"
-      (variables.length).times do
-        result = clauses.collect { |e| value(e[0], variables) && value(e[0], variables) }
+      (@variables.length).times do
+        result = clauses.collect { |e| value(e[0]) && value(e[0]) }
 
         # puts "#{result}"
 
@@ -43,7 +43,7 @@ class Randomized
           violations = result.each_index.select { |i| !result[i] }
           # puts "violations #{violations}"
           sample = clauses[violations.sample].sample
-          variables[sample] = !variables[sample]
+          @variables[sample] = !@variables[sample]
           # puts "sample #{sample}"
         end
       end
@@ -51,11 +51,11 @@ class Randomized
     false
   end
 
-  def value(index, variables)
+  def value(index)
     if index < 0
-      !variables[-index]
+      !@variables[-index]
     else
-      variables[index]
+      @variables[index]
     end
   end
 end
