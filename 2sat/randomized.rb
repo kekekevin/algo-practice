@@ -11,7 +11,7 @@ class Randomized
         clauses[i][1] = clause_input[1].to_i
       end
       puts filename
-      if solve(@variables, clauses)
+      if solve(clauses)
         puts "SAT"
       else
         puts "UNSAT"
@@ -19,36 +19,41 @@ class Randomized
     end
   end
 
-  def solve(variables, clauses)
+  def solve(clauses)
+    5.times { prune(clauses) }
+    puts clauses.length
+
     Math.log2(@variables.length).to_i.times do
       @variables.collect! { [true, false].sample }
-      puts "variables #{variables}"
-      (@variables.length).times do
-        result = clauses.collect { |e| value(e[0]) && value(e[0]) }
+      puts "#{Time.now}"
+      (2 * @variables.length ** 2).times do
+        violation = find_random_violation clauses
 
-        # puts "#{result}"
-
-        sat = true
-        result.each do |e|
-          sat = sat && e
-          if sat == false
-            break
-          end
-        end
-
-        if sat
+        if !violation
           return true
         else
-          # start at random place
-          violations = result.each_index.select { |i| !result[i] }
-          # puts "violations #{violations}"
-          sample = clauses[violations.sample].sample
+          sample = clauses[violation].sample
           @variables[sample] = !@variables[sample]
-          # puts "sample #{sample}"
         end
       end
     end
     false
+  end
+
+  def find_random_violation(clauses)
+    prng = Random.new
+    start = prng.rand(0..clauses.length - 1)
+    (start..clauses.length - 1).each do |i|
+      if !(value(clauses[i][0]) || value(clauses[i][1]))
+        return 1
+      end
+    end
+    (0..start).each do |i|
+      if !(value(clauses[i][0]) || value(clauses[i][1]))
+        return 1
+      end
+    end
+    nil
   end
 
   def value(index)
@@ -58,8 +63,37 @@ class Randomized
       @variables[index]
     end
   end
+
+  def prune(clauses)
+    occurences = Array.new(@variables.length + 1) { 0 }
+
+    clauses.each do |e|
+      if e[0] < 0
+        occurences[-e[0]] += 1
+      else
+        occurences[e[0]] += 1
+      end
+      if e[1] < 0
+        occurences[-e[1]] += 1
+      else
+        occurences[e[1]] += 1
+      end
+    end
+
+    variables = occurences.each_index.select { |i| occurences[i] == 1 }
+
+    clauses.reject! do |e|
+      variables.include?(e[0]) || variables.include?(-e[0]) ||
+        variables.include?(e[1]) || variables.include?(-e[1])
+    end
+
+    puts "extraneous variables #{variables.length}"
+    # puts "variables #{variables}"
+    # puts "clauses #{clauses}"
+  end
 end
 
 Randomized.new("example-unsat.in")
 Randomized.new("example-sat.in")
-# Randomized.new("large-sat.in")
+# Randomized.new("input2.in")
+# Randomized.new("input1.in")
