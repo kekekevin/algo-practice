@@ -1,3 +1,5 @@
+require "set"
+
 class Randomized
   def initialize(filename)
     File.open(filename, "r") do |file|
@@ -20,13 +22,15 @@ class Randomized
   end
 
   def solve(clauses)
-    5.times { prune(clauses) }
+    # 1000.times { prune(clauses) }
+    # clauses.length.times { prune(clauses) }
     puts clauses.length
+    # count num variables
 
-    Math.log2(@variables.length).to_i.times do
+    (Math.log2(clauses.length + 1) + 1).to_i.times do
       @variables.collect! { [true, false].sample }
       puts "#{Time.now}"
-      (2 * @variables.length ** 2).times do
+      (2 * clauses.length ** 2 + 1).times do
         violation = find_random_violation clauses
 
         if !violation
@@ -41,16 +45,17 @@ class Randomized
   end
 
   def find_random_violation(clauses)
+    return nil if clauses.empty?
     prng = Random.new
     start = prng.rand(0..clauses.length - 1)
     (start..clauses.length - 1).each do |i|
       if !(value(clauses[i][0]) || value(clauses[i][1]))
-        return 1
+        return i
       end
     end
     (0..start).each do |i|
       if !(value(clauses[i][0]) || value(clauses[i][1]))
-        return 1
+        return i
       end
     end
     nil
@@ -65,35 +70,45 @@ class Randomized
   end
 
   def prune(clauses)
-    occurences = Array.new(@variables.length + 1) { 0 }
+    occurences = Hash.new
 
     clauses.each do |e|
-      if e[0] < 0
-        occurences[-e[0]] += 1
-      else
+      if occurences.has_key? e[0]
         occurences[e[0]] += 1
-      end
-      if e[1] < 0
-        occurences[-e[1]] += 1
       else
+        occurences[e[0]] = 1
+      end
+      if occurences.has_key? e[1]
         occurences[e[1]] += 1
+      else
+        occurences[e[1]] = 1
       end
     end
 
-    variables = occurences.each_index.select { |i| occurences[i] == 1 }
+    single_variables = occurences.each_key.select { |k| occurences[k] + (occurences[-k] || 0) == 1 }
+    non_negated = occurences.each_key.select { |k| occurences[k] && occurences[-k] == nil }
+    # puts "non_negated #{non_negated}"
 
     clauses.reject! do |e|
-      variables.include?(e[0]) || variables.include?(-e[0]) ||
-        variables.include?(e[1]) || variables.include?(-e[1])
+      single_variables.include?(e[0]) || single_variables.include?(-e[0]) ||
+        single_variables.include?(e[1]) || single_variables.include?(-e[1]) ||
+        non_negated.include?(e[0]) || non_negated.include?(e[1])
     end
 
-    puts "extraneous variables #{variables.length}"
-    # puts "variables #{variables}"
-    # puts "clauses #{clauses}"
+    puts "extraneous variables #{single_variables.length}"
+    puts "non_negated #{non_negated.length}"
+    puts "variables #{single_variables}"
+    puts "non_negated #{non_negated}"
   end
 end
 
-Randomized.new("example-unsat.in")
-Randomized.new("example-sat.in")
-# Randomized.new("input2.in")
+# Randomized.new("example-unsat.in")
+# Randomized.new("example-sat.in")
+# Randomized.new("example2-sat.in")
+Randomized.new("example3-sat.in")
 # Randomized.new("input1.in")
+# Randomized.new("input2.in")
+# Randomized.new("input3.in")
+# Randomized.new("input4.in")
+# Randomized.new("input5.in")
+# Randomized.new("input6.in")
