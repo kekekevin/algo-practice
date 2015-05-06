@@ -22,21 +22,22 @@ class Randomized
   end
 
   def solve(clauses)
-    # 1000.times { prune(clauses) }
+    1000.times { prune(clauses) }
     # clauses.length.times { prune(clauses) }
-    puts clauses.length
-    # count num variables
+    # puts clauses.length
+    num_variables = clauses.collect { |e| [e[0].abs, e[1].abs] }.flatten.uniq.length
+    # puts num_variables
 
-    (Math.log2(clauses.length + 1) + 1).to_i.times do
+    (Math.log2(num_variables + 1)).to_i.times do
       @variables.collect! { [true, false].sample }
       puts "#{Time.now}"
-      (2 * clauses.length ** 2 + 1).times do
+      (2 * num_variables ** 2 + 1).times do
         violation = find_random_violation clauses
 
         if !violation
           return true
         else
-          sample = clauses[violation].sample
+          sample = clauses[violation].sample.abs
           @variables[sample] = !@variables[sample]
         end
       end
@@ -90,25 +91,25 @@ class Randomized
     # puts "non_negated #{non_negated}"
 
     clauses.reject! do |e|
-      single_variables.include?(e[0]) || single_variables.include?(-e[0]) ||
-        single_variables.include?(e[1]) || single_variables.include?(-e[1]) ||
+      single_variables.include?(e[0].abs) ||
+        single_variables.include?(e[1].abs) ||
         non_negated.include?(e[0]) || non_negated.include?(e[1])
     end
 
-    puts "extraneous variables #{single_variables.length}"
-    puts "non_negated #{non_negated.length}"
-    puts "variables #{single_variables}"
-    puts "non_negated #{non_negated}"
+    # puts "extraneous variables #{single_variables.length}"
+    # puts "non_negated #{non_negated.length}"
+    # puts "variables #{single_variables}"
+    # puts "non_negated #{non_negated}"
   end
 end
 
-# Randomized.new("example-unsat.in")
-# Randomized.new("example-sat.in")
-# Randomized.new("example2-sat.in")
+Randomized.new("example-unsat.in")
+Randomized.new("example-sat.in")
+Randomized.new("example2-sat.in")
 Randomized.new("example3-sat.in")
-# Randomized.new("input1.in")
-# Randomized.new("input2.in")
-# Randomized.new("input3.in")
-# Randomized.new("input4.in")
-# Randomized.new("input5.in")
-# Randomized.new("input6.in")
+Randomized.new("input1.in")
+Randomized.new("input2.in")
+Randomized.new("input3.in")
+Randomized.new("input4.in")
+Randomized.new("input5.in")
+Randomized.new("input6.in")
